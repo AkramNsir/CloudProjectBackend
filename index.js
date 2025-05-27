@@ -6,12 +6,28 @@ const os = require('os');
 require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3306;
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
+// First connection (without database) to create the database
+const tempConnection = mysql.createConnection({
+  host: process.env.DB_HOST || 'mydb.cj0j9ganohni.us-east-1.rds.amazonaws.com',
+  user: process.env.DB_USER || 'admin',
+  password: process.env.DB_PASSWORD || 'barcabarca123.A%'
+});
+
+tempConnection.query(`CREATE DATABASE IF NOT EXISTS ${process.env.DB_NAME || 'mydb'}`, (err) => {
+  if (err) {
+    console.error('❌ Error creating database:', err);
+    return;
+  }
+  console.log('✅ Database ensured');
+
+  tempConnection.end();
+  
 // Database connection
 const db = mysql.createConnection({
   host: process.env.DB_HOST || 'databasetest.cysrpetj7pax.us-east-1.rds.amazonaws.com',
